@@ -1,0 +1,50 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    name: go-swagger
+    url: https://github.com/hktalent/
+  description: This is 51pwn app api docs.
+  license:
+    name: Apache 2.0
+  title: 51pwn app API
+  version: "1.0"
+paths:
+  /api/v1/rsc:
+    post:
+      consumes:
+      - application/json
+      description: 保存连接信息,保存api,GORM V2 将使用 upsert 来保存关联记录
+      produces:
+      - application/json
+      responses: {}
+      summary: 保存ssh、vnc、rdp等远程连接配置信息
+      tags:
+      - remoute
+      - server
+      - config
+  /api/v1/rsc/:ip/:port:
+    post:
+      consumes:
+      - application/json
+      description: 通过ip、port返回连接信息
+      parameters:
+      - description: ip address
+        in: path
+        name: ip
+        required: true
+        type: string
+      - description: port
+        in: path
+        name: port
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 通过ip、port返回连接信息
+      tags:
+      - remoute
+      - server
+      - config
+swagger: "2.0"

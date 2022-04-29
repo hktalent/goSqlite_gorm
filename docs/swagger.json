@@ -1,0 +1,71 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is 51pwn app api docs.",
+        "title": "51pwn app API",
+        "contact": {
+            "name": "go-swagger",
+            "url": "https://github.com/hktalent/"
+        },
+        "license": {
+            "name": "Apache 2.0"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1/rsc": {
+            "post": {
+                "description": "保存连接信息,保存api,GORM V2 将使用 upsert 来保存关联记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "remoute",
+                    "server",
+                    "config"
+                ],
+                "summary": "保存ssh、vnc、rdp等远程连接配置信息",
+                "responses": {}
+            }
+        },
+        "/api/v1/rsc/:ip/:port": {
+            "post": {
+                "description": "通过ip、port返回连接信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "remoute",
+                    "server",
+                    "config"
+                ],
+                "summary": "通过ip、port返回连接信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ip address",
+                        "name": "ip",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "port",
+                        "name": "port",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    }
+}
