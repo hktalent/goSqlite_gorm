@@ -53,6 +53,7 @@ type RemouteServerce struct {
 	KeyP5wd string `yaml:"keyP5wd,omitempty"  json:"keyP5wd,omitempty" jsonschema:"title=key paswd,description=key paswd"`
 	Type    string `yaml:"type,omitempty" json:"type,omitempty" jsonschema:"title=type:vnc ssh rdp,description=type:vnc ssh rdp"`
 	Tags    string `gorm:"index" yaml:"tags,omitempty" json:"tags,omitempty" jsonschema:"title=tags hackerone butian,description=tags hackerone butian"` // 比较时hackerone，还是其他
+	ImgData string `json:"imgData"`
 }
 
 // 组件信息
@@ -129,6 +130,25 @@ func GetIPort(g *gin.Context) {
 	}
 	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
 }
+
+type RmtSvIpName struct {
+	ID    uint   `json:"id"`
+	Title string `json:"title"`
+}
+
+func GetRmtsvLists(g *gin.Context) {
+	var aRst []RmtSvIpName
+	// 查询时会自动选择 `id`, `title` 字段
+	rst := dbCC.Model(&RemouteServerce{}).Limit(1000).Find(&aRst)
+	// SELECT `id`, `name` FROM `users` LIMIT 10
+	//log.Println("query end", rst.RowsAffected)
+	if 0 < rst.RowsAffected && 0 < len(aRst) {
+		g.JSON(http.StatusOK, aRst)
+		return
+	}
+	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
+}
+
 func ConnRmtSvs(g *gin.Context) *RemouteServerce {
 	var rsv RemouteServerce
 	//n, e := strconv.Atoi(strings.Split(g.Request.RequestURI, "/conn/")[1])
@@ -256,7 +276,7 @@ func main() {
 			rscc := v1.Group("/rsc")
 			rscc.POST("", SaveRsCc)
 			rscc.GET("/:ip/:port", GetIPort)
-			//connGrp.GET("/:id", ConnRmtSvs)
+			v1.GET("/rmtsvlists", GetRmtsvLists)
 		}
 
 		// ssh，必须在 connGrp.Use(ConnRmtSvsMiddleware()) 之后
