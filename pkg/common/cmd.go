@@ -1,9 +1,7 @@
-package main
+package common
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"os/exec"
 )
 
@@ -22,11 +20,11 @@ func DoCmd(args ...string) (string, error) {
 	return string(outStr + "\n" + errStr), err
 }
 
-func main() {
-	out, err := DoCmd("ls", "-l", "/var/log/*.log")
-	if err != nil {
-		fmt.Printf("combined out:\n%s\n", string(out))
-		log.Fatalf("cmd.Run() failed with %s\n", err)
-	}
-	fmt.Printf("combined out:\n%s\n", string(out))
-}
+//func main() {
+//	out, err := DoCmd("ls", "-l", "/var/log/*.log")
+//	if err != nil {
+//		fmt.Printf("combined out:\n%s\n", string(out))
+//		log.Fatalf("cmd.Run() failed with %s\n", err)
+//	}
+//	fmt.Printf("combined out:\n%s\n", string(out))
+//}

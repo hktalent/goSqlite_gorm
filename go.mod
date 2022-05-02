@@ -1,4 +1,4 @@
-module github.com/hktalent/goSqlite_gorm
+module goSqlite_gorm
 
 go 1.18
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	mycmd "goSqlite_gorm/pkg/common"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -33,12 +35,20 @@ const (
 // curl 'http://127.0.0.1:8081/api/v1/rsc/192.168.0.111/222'
 type CommonDBInfo struct {
 	//ID int `gorm:"column:id;primary_key;auto_increment;not null" json:"id"`
+
+}
+type WhereAmI struct {
+	Latitude  string    `json:"latitude"`
+	Longitude string    `json:"longitude"`
+	Accuracy  string    `json:"accuracy"`
+	Date      time.Time `json:"date"`
 }
 
 // 远程链接信息
 type RemouteServerce struct {
 	gorm.Model
 	CommonDBInfo
+	WhereAmI
 	Title string `json:"title"`
 	Ip    string `gorm:"column:ip;unique_index:ip_port" yaml:"ip,omitempty" json:"ip,omitempty"  jsonschema:"title=ip or domain Required parameters for connection,description=ip or domain Required parameters for connection"`
 	Port  int    `gorm:"column:port;unique_index:ip_port" yaml:"port,omitempty" json:"port,omitempty" jsonschema:"title=remote port,description=ssh default 22"`
@@ -99,9 +109,6 @@ func GetDb(dbName string, dst ...interface{}) (*gorm.DB, error) {
 	dbCC = db
 	return db, nil
 }
-func Helloworld(g *gin.Context) {
-	g.JSON(http.StatusOK, "helloworld")
-}
 
 type ResultObj struct {
 	Msg  string `json:msg`
@@ -132,8 +139,9 @@ func GetIPort(g *gin.Context) {
 }
 
 type RmtSvIpName struct {
-	ID    uint   `json:"id"`
-	Title string `json:"title"`
+	ID      uint   `json:"id"`
+	Title   string `json:"title"`
+	ImgData string `json:"imgData"`
 }
 
 func GetRmtsvLists(g *gin.Context) {
@@ -160,6 +168,27 @@ func ConnRmtSvs(g *gin.Context) *RemouteServerce {
 		}
 	}
 	return nil
+}
+
+type RmtSvImg struct {
+	ID      uint   `json:"id"`
+	ImgData string `json:"imgData"`
+}
+
+func SaveRmtsvImg(g *gin.Context) {
+	var rsv RmtSvImg
+	if err := g.BindJSON(&rsv); err == nil {
+		xxxD := dbCC.Model(&RemouteServerce{})
+		dbCC.Table("remoute_serverces").AutoMigrate(&RemouteServerce{})
+		rst := xxxD.Where("id = ?", rsv.ID).Update("img_data", rsv.ImgData)
+		//log.Println(rst.RowsAffected, rsv.ID, rst.Error)
+		msg := OkMsg
+		if nil != rst.Error {
+			msg = fmt.Sprintf("%v", rst.Error)
+		}
+		g.JSON(http.StatusOK, gin.H{"msg": msg, "code": rst.RowsAffected})
+		return
+	}
 }
 
 // @Summary      保存ssh、vnc、rdp等远程连接配置信息
@@ -204,12 +233,27 @@ func DoReverseProxy(c *gin.Context, target string) {
 	}
 }
 
+func fnWriteHtml(c *gin.Context, szHtml string) {
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(szHtml))
+}
+
 // https://semaphoreci.com/community/tutorials/building-go-web-applications-and-microservices-using-gin
 // curl 'http://127.0.0.1:8081/conn/0'
 func ConnRmtSvsH(c *gin.Context) {
 	var rsv *RemouteServerce
 	rsv = ConnRmtSvs(c)
 	if nil != rsv {
+		log.Println(rsv.Tags, strings.Index(rsv.Tags, "vnc"))
+		if -1 < strings.Index(rsv.Tags, "vnc") {
+			mycmd.DoCmd("open", "vnc://"+rsv.User+"@"+rsv.Ip+":"+strconv.Itoa(rsv.Port))
+			fnWriteHtml(c, "<i id=terminal-container>VNC is open from cmd shell</i>")
+			return
+		}
+		if -1 < strings.Index(rsv.Tags, "rdp") {
+			mycmd.DoCmd("rdesktop", rsv.Ip+":"+strconv.Itoa(rsv.Port))
+			fnWriteHtml(c, "<i id=terminal-container>brew install rdesktop, RDP is open from cmd shell</i>")
+			return
+		}
 		sss := make(url.Values)
 		sss.Set("host", rsv.Ip)
 		sss.Set("port", strconv.Itoa(rsv.Port))
@@ -277,6 +321,7 @@ func main() {
 			rscc.POST("", SaveRsCc)
 			rscc.GET("/:ip/:port", GetIPort)
 			v1.GET("/rmtsvlists", GetRmtsvLists)
+			v1.POST("/rmtsvImg", SaveRmtsvImg)
 		}
 
 		// ssh，必须在 connGrp.Use(ConnRmtSvsMiddleware()) 之后
