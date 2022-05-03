@@ -3,7 +3,9 @@ package common
 import (
 	"bytes"
 	"encoding/json"
+	"goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
@@ -27,6 +29,8 @@ func DoCmd(args ...string) (string, error) {
 	return string(outStr + "\n" + errStr), err
 }
 
+var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.ConnectInfo{})
+
 func GetCurConnInfo() []mymod.ConnectInfo {
 	p, err := os.Getwd()
 	if nil != err {
@@ -40,6 +44,7 @@ func GetCurConnInfo() []mymod.ConnectInfo {
 	}
 	x := strings.Split(a, "\n")
 	clst := []mymod.ConnectInfo{}
+	dbCC.AutoMigrate(&mymod.IpInfo{})
 	for _, y := range x {
 		k := mymod.ConnectInfo{}
 		w := strings.Index(y, " ")
@@ -52,8 +57,13 @@ func GetCurConnInfo() []mymod.ConnectInfo {
 				y = y[w+1:]
 				k.Cmd = y
 				if -1 == strings.Index(k.Ip, "192.168.") && -1 == strings.Index(k.Ip, "172.16.") && -1 == strings.Index(k.Ip, "127.0.0") {
-					k.IpInfo = GetIpInfo(k.Ip)
-					log.Println(k.IpInfo)
+					var xx0 *mymod.IpInfo
+					rst := dbCC.Model(&mymod.IpInfo{}).Where("query=?", k.IpInfo).Find(&xx0)
+					if 0 < rst.RowsAffected && nil != xx0 {
+						k.IpInfo = xx0
+					} else {
+						k.IpInfo = GetIpInfo(k.Ip)
+					}
 				}
 				clst = append(clst, k)
 			}
@@ -84,7 +94,11 @@ func GetIpInfo(ip string) *mymod.IpInfo {
 		err = json.NewDecoder(resp.Body).Decode(&ipInfo)
 		if nil == err {
 			return ipInfo
+		} else {
+			log.Println(err)
 		}
+	} else {
+		log.Println(err)
 	}
 	return nil
 }

@@ -32,8 +32,6 @@ func DoGetConnInfo() {
 			rst = xx1.Updates(&k)
 			if nil != rst.Error {
 				log.Println(rst.RowsAffected, rst.Error)
-			} else {
-				log.Println(rst.RowsAffected, k.Ip)
 			}
 		} else {
 			rst = dbCC.Create(&k)
