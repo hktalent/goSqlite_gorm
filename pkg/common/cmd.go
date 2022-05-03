@@ -2,8 +2,10 @@ package common
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/json"
 	mymod "goSqlite_gorm/pkg/models"
+	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -25,14 +27,77 @@ func DoCmd(args ...string) (string, error) {
 	return string(outStr + "\n" + errStr), err
 }
 
+func GetCurConnInfo() []mymod.ConnectInfo {
+	p, err := os.Getwd()
+	if nil != err {
+		log.Println(err)
+		return nil
+	}
+	a, err := DoCmd("/bin/bash", p+"/tools/getCurNetConn.sh", "f")
+	if nil != err {
+		log.Println(err)
+		return nil
+	}
+	x := strings.Split(a, "\n")
+	clst := []mymod.ConnectInfo{}
+	for _, y := range x {
+		k := mymod.ConnectInfo{}
+		w := strings.Index(y, " ")
+		if 1 < w {
+			k.Pid = y[0:w]
+			y = y[w+1:]
+			w = strings.Index(y, " ")
+			if 1 < w {
+				k.Ip = y[0:w]
+				y = y[w+1:]
+				k.Cmd = y
+				if -1 == strings.Index(k.Ip, "192.168.") && -1 == strings.Index(k.Ip, "172.16.") && -1 == strings.Index(k.Ip, "127.0.0") {
+					k.IpInfo = GetIpInfo(k.Ip)
+					log.Println(k.IpInfo)
+				}
+				clst = append(clst, k)
+			}
+		}
+	}
+	return clst
+}
+
+// 获取ip信息
+func GetIpInfo(ip string) *mymod.IpInfo {
+	req, err := http.NewRequest("GET", "http://ip-api.com/json/"+ip, nil)
+	if err == nil {
+		req.Header.Set("User-Agent", "curl/1.0")
+		req.Header.Add("Cache-Control", "no-cache")
+		// keep-alive
+		req.Header.Add("Connection", "close")
+		req.Close = true
+
+		resp, err := http.DefaultClient.Do(req)
+		if resp != nil {
+			defer resp.Body.Close() // resp 可能为 nil，不能读取 Body
+		}
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		var ipInfo *mymod.IpInfo
+		err = json.NewDecoder(resp.Body).Decode(&ipInfo)
+		if nil == err {
+			return ipInfo
+		}
+	}
+	return nil
+}
+
+// 获取当前坐标位置信息
 func GetMacWhereAmI(wami *mymod.WhereAmI) {
 	p, err := os.Getwd()
 	if nil != err {
 		return
 	}
-	a, err := DoCmd("bash", "-c", "echo $PPSSWWDD|sudo -S "+p+"/tools/whereami")
+	a, err := DoCmd("/bin/bash", "-c", "echo $PPSSWWDD|sudo -S "+p+"/tools/whereami")
 	if nil != err {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	x := strings.Split(a, "\n")
@@ -61,13 +126,8 @@ func GetMacWhereAmI(wami *mymod.WhereAmI) {
 	//fmt.Println(wami)
 }
 
-//
+////
 //func main() {
-//	//	out, err := DoCmd("ls", "-l", "/var/log/*.log")
-//	//	if err != nil {
-//	//		fmt.Printf("combined out:\n%s\n", string(out))
-//	//		log.Fatalf("cmd.Run() failed with %s\n", err)
-//	//	}
-//	wami := mymod.WhereAmI{}
-//	GetMacWhereAmI(&wami)
+//	x := getCurConnInfo()
+//	fmt.Printf("%v", x)
 //}

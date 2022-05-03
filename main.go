@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	mycmd "goSqlite_gorm/pkg/common"
+	"goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
-	"gorm.io/driver/sqlite"
+	task "goSqlite_gorm/pkg/task"
 	"gorm.io/gorm"
 	"io"
 	"log"
@@ -62,18 +63,7 @@ type SiteInfo struct {
 	Tags               string         `yaml:"tags,omitempty" json:"tags,omitempty" jsonschema:"title=tags hackerone butian,description=tags hackerone butian"` // 比较时hackerone，还是其他
 }
 
-var dbCC *gorm.DB
-
-func GetDb(dbName string, dst ...interface{}) (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("file:"+dbName+".db?cache=shared&mode=rwc&_journal_mode=WAL&Synchronous=Off&temp_store=memory&mmap_size=30000000000"), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	// Migrate the schema
-	db.AutoMigrate(dst[0])
-	dbCC = db
-	return db, nil
-}
+var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.RemouteServerce{})
 
 // @Summary      通过ip、port返回连接信息
 // @Description  通过ip、port返回连接信息, curl 'http://127.0.0.1:8081/api/v1/rsc/192.168.0.111/222'
@@ -250,13 +240,8 @@ func ReverseProxy(path, target string, router *gin.Engine) {
 // @host localhost:8080
 // @BasePath /api/v1
 func main() {
-	db, err := GetDb("mydbfile", &mymod.RemouteServerce{})
-	if err != nil {
-		//panic("failed to connect database")
-		log.Println(err)
-		return
-	}
-	if nil != db {
+	go task.DoAllTask()
+	if nil != dbCC {
 		router := gin.Default()
 		// 内部异常返回500
 		router.Use(gin.Recovery())
