@@ -1,8 +1,9 @@
-package common
+package main
 
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
 	"gorm.io/gorm"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -104,6 +106,61 @@ func GetIpInfo(ip string) *mymod.IpInfo {
 	return nil
 }
 
+/*
+SSID BSSID             RSSI CHANNEL HT CC SECURITY (auth/unicast/group)
+*/
+// /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -s
+func GetAirPortBSSID() *mymod.WifiInfoWifiListas {
+	sCmd := "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
+	if _, err := os.Stat(sCmd); errors.Is(err, os.ErrNotExist) {
+		sCmd = "/usr/local/bin/airport"
+	}
+	a, err := DoCmd("/bin/bash", "-c", "echo $PPSSWWDD|sudo -S "+sCmd+" -s")
+	if nil != err {
+		log.Println(err)
+		return nil
+	}
+	x := strings.Split(a, "\n")
+
+	rstObj := mymod.WifiInfoWifiListas{}
+	var wflst []mymod.WifiInfo = []mymod.WifiInfo{}
+	for _, j := range x {
+		r1, err := regexp.Compile(` ([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}) `)
+		if nil != err {
+			continue
+		}
+		a1 := r1.FindAllString(j, -1)
+		if 0 < len(a1) {
+			wf1 := mymod.WifiInfo{}
+			wf1.BSSID = strings.TrimSpace(a1[0])
+			a1 = strings.Split(j, a1[0])
+			wf1.SSID = strings.TrimSpace(a1[0])
+			j = strings.TrimSpace(a1[1])
+			a1 = strings.Split(j, "  ")
+			wf1.RSSI = strings.TrimSpace(a1[0])
+			j = j[len(a1[0])+2:]
+			r1, err = regexp.Compile(` {2,}`)
+			if nil == err {
+				a1 = r1.Split(j, -1)
+				wf1.CHANNEL = strings.TrimSpace(a1[0])
+				wf1.HT = strings.TrimSpace(a1[1])
+				j = strings.TrimSpace(a1[2])
+				wf1.CC = j[0:2]
+				wf1.SECURITY = strings.TrimSpace(j[2:])
+			}
+			wflst = append(wflst, wf1)
+		}
+	}
+	var wam *mymod.WhereAmI = &mymod.WhereAmI{}
+	GetMacWhereAmI(wam)
+	s, err1 := json.Marshal(wam)
+	if nil == err1 {
+		json.Unmarshal(s, &rstObj)
+	}
+	rstObj.WifiLists = wflst
+	return &rstObj
+}
+
 // 获取当前坐标位置信息
 func GetMacWhereAmI(wami *mymod.WhereAmI) {
 	p, err := os.Getwd()
@@ -143,6 +200,6 @@ func GetMacWhereAmI(wami *mymod.WhereAmI) {
 
 ////
 //func main() {
-//	x := getCurConnInfo()
-//	fmt.Printf("%v", x)
+//	GetAirPortBSSID()
+//	//	fmt.Printf("%v", x)
 //}
