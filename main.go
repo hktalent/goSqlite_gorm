@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	mycmd "goSqlite_gorm/pkg/common"
+	mymod "goSqlite_gorm/pkg/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"io"
@@ -13,7 +14,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -33,43 +33,10 @@ const (
 
 // how test:
 // curl 'http://127.0.0.1:8081/api/v1/rsc/192.168.0.111/222'
-type CommonDBInfo struct {
-	//ID int `gorm:"column:id;primary_key;auto_increment;not null" json:"id"`
-
-}
-type WhereAmI struct {
-	Latitude  string    `json:"latitude"`
-	Longitude string    `json:"longitude"`
-	Accuracy  string    `json:"accuracy"`
-	Date      time.Time `json:"date"`
-}
-
-// 远程链接信息
-type RemouteServerce struct {
-	gorm.Model
-	CommonDBInfo
-	WhereAmI
-	Title string `json:"title"`
-	Ip    string `gorm:"column:ip;unique_index:ip_port" yaml:"ip,omitempty" json:"ip,omitempty"  jsonschema:"title=ip or domain Required parameters for connection,description=ip or domain Required parameters for connection"`
-	Port  int    `gorm:"column:port;unique_index:ip_port" yaml:"port,omitempty" json:"port,omitempty" jsonschema:"title=remote port,description=ssh default 22"`
-	User  string `gorm:"index"  yaml:"user,omitempty" json:"user,omitempty" jsonschema:"title=user name,description=user name"`
-	P5wd  string `yaml:"p5wd,omitempty"  json:"p5wd,omitempty" jsonschema:"title=password,description=password"`
-	Key   string `yaml:"key,omitempty" json:"key,omitempty" jsonschema:"title=ssh -i identity_file,description=Selects a file from which the identity (private key) for public key authentication is read.  You can also specify a public key file to use the corresponding
-             private key that is loaded in ssh-agent(1) when the private key file is not present locally.  The default is ~/.ssh/id_rsa, ~/.ssh/id_ecdsa,
-             ~/.ssh/id_ecdsa_sk, ~/.ssh/id_ed25519, ~/.ssh/id_ed25519_sk and ~/.ssh/id_dsa.  Identity files may also be specified on a per-host basis in the configuration
-             file.  It is possible to have multiple -i options (and multiple identities specified in configuration files).  If no certificates have been explicitly
-             specified by the CertificateFile directive, ssh will also try to load certificate information from the filename obtained by appending -cert.pub to identity
-             filenames"`
-	KeyP5wd string `yaml:"keyP5wd,omitempty"  json:"keyP5wd,omitempty" jsonschema:"title=key paswd,description=key paswd"`
-	Type    string `yaml:"type,omitempty" json:"type,omitempty" jsonschema:"title=type:vnc ssh rdp,description=type:vnc ssh rdp"`
-	Tags    string `gorm:"index" yaml:"tags,omitempty" json:"tags,omitempty" jsonschema:"title=tags hackerone butian,description=tags hackerone butian"` // 比较时hackerone，还是其他
-	ImgData string `json:"imgData"`
-}
 
 // 组件信息
 type ComponentInfo struct {
 	gorm.Model
-	CommonDBInfo
 	Name    string   `yaml:"name,omitempty" json:"name,omitempty" jsonschema:"title=Component name,description=Component name"` // 组件name
 	Info    string   `yaml:"info,omitempty" info:"port,omitempty" jsonschema:"title=Component info,description=Component info"`
 	VuLists []string `yaml:"vulists,omitempty" json:"vulists,omitempty" jsonschema:"title=vul lists,description=vul lists"`
@@ -78,7 +45,6 @@ type ComponentInfo struct {
 // 服务信息
 type ServicesInfo struct {
 	gorm.Model
-	CommonDBInfo
 	Ip            string `yaml:"ip,omitempty" json:"ip,omitempty" jsonschema:"title=ip or domain Required parameters for connection,description=ip or domain Required parameters for connection"`
 	Port          int    `yaml:"port,omitempty" json:"port,omitempty" jsonschema:"title=connect to port,description=connect to port"`
 	Info          string `yaml:"info,omitempty" info:"port,omitempty" jsonschema:"title=Component info,description=Component info"`
@@ -88,7 +54,6 @@ type ServicesInfo struct {
 // 远程链接信息
 type SiteInfo struct {
 	gorm.Model
-	CommonDBInfo
 	Url                string         `yaml:"url,omitempty" json:"url,omitempty" jsonschema:"title=attack url,description=attack url"`
 	ServsInfo          []ServicesInfo `yaml:"servsInfo,omitempty" json:"servsInfo,omitempty" jsonschema:"title=Services Info lists,description=Services Info lists"`
 	Title              string         `yaml:"title,omitempty" json:"title,omitempty" jsonschema:"title=site title,description=site title"`
@@ -110,11 +75,6 @@ func GetDb(dbName string, dst ...interface{}) (*gorm.DB, error) {
 	return db, nil
 }
 
-type ResultObj struct {
-	Msg  string `json:msg`
-	Code int    `json:code`
-}
-
 // @Summary      通过ip、port返回连接信息
 // @Description  通过ip、port返回连接信息, curl 'http://127.0.0.1:8081/api/v1/rsc/192.168.0.111/222'
 // @Tags         remoute,server,config
@@ -125,7 +85,7 @@ type ResultObj struct {
 // @Success 200 {object} RemouteServerce
 // @Router       /api/v1/rsc/:ip/:port  [post]
 func GetIPort(g *gin.Context) {
-	var rsv RemouteServerce
+	var rsv mymod.RemouteServerce
 	n, e := strconv.Atoi(g.Param("port"))
 	if nil == e {
 		rst := dbCC.First(&rsv, "ip = ? and port = ?", g.Param("ip"), n)
@@ -138,16 +98,10 @@ func GetIPort(g *gin.Context) {
 	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
 }
 
-type RmtSvIpName struct {
-	ID      uint   `json:"id"`
-	Title   string `json:"title"`
-	ImgData string `json:"imgData"`
-}
-
 func GetRmtsvLists(g *gin.Context) {
-	var aRst []RmtSvIpName
+	var aRst []mymod.RmtSvIpName
 	// 查询时会自动选择 `id`, `title` 字段
-	rst := dbCC.Model(&RemouteServerce{}).Limit(1000).Find(&aRst)
+	rst := dbCC.Model(&mymod.RemouteServerce{}).Limit(1000).Find(&aRst)
 	// SELECT `id`, `name` FROM `users` LIMIT 10
 	//log.Println("query end", rst.RowsAffected)
 	if 0 < rst.RowsAffected && 0 < len(aRst) {
@@ -157,8 +111,8 @@ func GetRmtsvLists(g *gin.Context) {
 	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
 }
 
-func ConnRmtSvs(g *gin.Context) *RemouteServerce {
-	var rsv RemouteServerce
+func ConnRmtSvs(g *gin.Context) *mymod.RemouteServerce {
+	var rsv mymod.RemouteServerce
 	//n, e := strconv.Atoi(strings.Split(g.Request.RequestURI, "/conn/")[1])
 	n, e := strconv.Atoi(g.Param("id"))
 	if nil == e {
@@ -170,16 +124,11 @@ func ConnRmtSvs(g *gin.Context) *RemouteServerce {
 	return nil
 }
 
-type RmtSvImg struct {
-	ID      uint   `json:"id"`
-	ImgData string `json:"imgData"`
-}
-
 func SaveRmtsvImg(g *gin.Context) {
-	var rsv RmtSvImg
+	var rsv mymod.RmtSvImg
 	if err := g.BindJSON(&rsv); err == nil {
-		xxxD := dbCC.Model(&RemouteServerce{})
-		dbCC.Table("remoute_serverces").AutoMigrate(&RemouteServerce{})
+		xxxD := dbCC.Model(&mymod.RemouteServerce{})
+		dbCC.Table("remoute_serverces").AutoMigrate(&mymod.RemouteServerce{})
 		rst := xxxD.Where("id = ?", rsv.ID).Update("img_data", rsv.ImgData)
 		//log.Println(rst.RowsAffected, rsv.ID, rst.Error)
 		msg := OkMsg
@@ -198,7 +147,7 @@ func SaveRmtsvImg(g *gin.Context) {
 // @Produce      json
 // @Router       /api/v1/rsc  [post]
 func SaveRsCc(g *gin.Context) {
-	var rsv, rsvOld RemouteServerce
+	var rsv, rsvOld mymod.RemouteServerce
 	if err := g.BindJSON(&rsv); err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{"msg": err, "code": ErrCode})
 		return
@@ -240,7 +189,7 @@ func fnWriteHtml(c *gin.Context, szHtml string) {
 // https://semaphoreci.com/community/tutorials/building-go-web-applications-and-microservices-using-gin
 // curl 'http://127.0.0.1:8081/conn/0'
 func ConnRmtSvsH(c *gin.Context) {
-	var rsv *RemouteServerce
+	var rsv *mymod.RemouteServerce
 	rsv = ConnRmtSvs(c)
 	if nil != rsv {
 		log.Println(rsv.Tags, strings.Index(rsv.Tags, "vnc"))
@@ -299,7 +248,7 @@ func ReverseProxy(path, target string, router *gin.Engine) {
 // @host localhost:8080
 // @BasePath /api/v1
 func main() {
-	db, err := GetDb("mydbfile", &RemouteServerce{})
+	db, err := GetDb("mydbfile", &mymod.RemouteServerce{})
 	if err != nil {
 		//panic("failed to connect database")
 		log.Println(err)
