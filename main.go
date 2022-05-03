@@ -127,6 +127,7 @@ func ConnRmtSvs(g *gin.Context) *mymod.RemouteServerce {
 func SaveRmtsvImg(g *gin.Context) {
 	var rsv mymod.RmtSvImg
 	if err := g.BindJSON(&rsv); err == nil {
+		mycmd.GetMacWhereAmI(&rsv.WhereAmI)
 		xxxD := dbCC.Model(&mymod.RemouteServerce{})
 		dbCC.Table("remoute_serverces").AutoMigrate(&mymod.RemouteServerce{})
 		rst := xxxD.Where("id = ?", rsv.ID).Update("img_data", rsv.ImgData)
@@ -153,6 +154,7 @@ func SaveRsCc(g *gin.Context) {
 		return
 	}
 	msg := OkMsg
+	mycmd.GetMacWhereAmI(&rsv.WhereAmI)
 	rst := dbCC.First(&rsvOld, "ip = ? and port = ?", rsv.Ip, rsv.Port)
 	if 1 == rst.RowsAffected {
 		rst = dbCC.Model(&rsv).Where("id = ?", rsvOld.ID).Updates(rsv)

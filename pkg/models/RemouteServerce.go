@@ -12,17 +12,19 @@ type RmtSvIpName struct {
 	ImgData string `json:"imgData"`
 }
 
-// 图片更新
-type RmtSvImg struct {
-	ID      uint   `json:"id"`
-	ImgData string `json:"imgData"`
-}
-
+// 位置坐标
 type WhereAmI struct {
 	Latitude  string    `json:"latitude"`
 	Longitude string    `json:"longitude"`
 	Accuracy  string    `json:"accuracy"`
 	Date      time.Time `json:"date"`
+}
+
+// 图片更新
+type RmtSvImg struct {
+	ID      uint   `json:"id"`
+	ImgData string `json:"imgData"`
+	WhereAmI
 }
 
 // 远程链接信息
