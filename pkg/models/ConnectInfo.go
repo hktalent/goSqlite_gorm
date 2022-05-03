@@ -4,8 +4,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// ip info
+// ip 经纬度 info
 type IpInfo struct {
+	gorm.Model
 	Continent     string  `json:"continent"`
 	ContinentCode string  `json:"continentCode"`
 	Country       string  `json:"country"`
@@ -27,14 +28,21 @@ type IpInfo struct {
 	Mobile        string  `json:"mobile"`
 	Proxy         string  `json:"proxy"`
 	Hosting       string  `json:"hosting"`
-	Query         string  `json:"query" gorm:"primaryKey,unique_index,foreignKey:Query;references:Ip"` // IP
+	Ip            string  `json:"query" gorm:"primaryKey,unique_index"` // IP
+}
+
+// domain info
+type DomainInfo struct {
+	gorm.Model
+	Name string   `json:"name" gorm:"primaryKey,unique_index"`
+	Ips  []IpInfo `json:"ips"`
 }
 
 // 连接信息
 type ConnectInfo struct {
 	gorm.Model
-	Pid    string  `json:"pid"`
-	Ip     string  `json:"ip"`
-	Cmd    string  `json:"cmd"`
-	IpInfo *IpInfo `json:"ipInfo" gorm:"foreignKey:Query;references:Ip"`
+	Pid    string `json:"pid"`
+	Ip     string `json:"ip"`
+	Cmd    string `json:"cmd"`
+	IpInfo IpInfo `json:"ipInfo" gorm:"foreignkey:Ip;references:Ip"`
 }

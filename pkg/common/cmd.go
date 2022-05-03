@@ -58,11 +58,12 @@ func GetCurConnInfo() []mymod.ConnectInfo {
 				k.Cmd = y
 				if -1 == strings.Index(k.Ip, "192.168.") && -1 == strings.Index(k.Ip, "172.16.") && -1 == strings.Index(k.Ip, "127.0.0") {
 					var xx0 *mymod.IpInfo
-					rst := dbCC.Model(&mymod.IpInfo{}).Where("query=?", k.IpInfo).Find(&xx0)
+					rst := dbCC.Model(&mymod.IpInfo{}).First(&xx0, "ip=?", k.Ip)
 					if 0 < rst.RowsAffected && nil != xx0 {
-						k.IpInfo = xx0
+						k.IpInfo = *xx0
 					} else {
-						k.IpInfo = GetIpInfo(k.Ip)
+						k.IpInfo = *GetIpInfo(k.Ip)
+						//log.Println(k.IpInfo)
 					}
 				}
 				clst = append(clst, k)

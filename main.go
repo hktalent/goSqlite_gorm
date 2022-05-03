@@ -88,17 +88,25 @@ func GetIPort(g *gin.Context) {
 	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
 }
 
+// 通过泛型调用
 func GetRmtsvLists(g *gin.Context) {
-	var aRst []mymod.RmtSvIpName
-	// 查询时会自动选择 `id`, `title` 字段
-	rst := dbCC.Model(&mymod.RemouteServerce{}).Limit(1000).Find(&aRst)
-	// SELECT `id`, `name` FROM `users` LIMIT 10
-	//log.Println("query end", rst.RowsAffected)
-	if 0 < rst.RowsAffected && 0 < len(aRst) {
-		g.JSON(http.StatusOK, aRst)
-		return
+	db.GetRmtsvLists(g, mymod.RemouteServerce{}, []mymod.RmtSvIpName{})
+}
+
+// 当前连接信息
+func GetccLists(g *gin.Context) {
+	var rst []mymod.ConnectInfo = db.GetRmtsvLists4List(mymod.ConnectInfo{}, []mymod.ConnectInfo{})
+	if nil != rst && 0 < len(rst) {
+		for i, x := range rst {
+			if "" == x.IpInfo.Ip {
+				xx1 := db.GetOne[mymod.IpInfo](&x.IpInfo, "ip=?", x.Ip)
+				x.IpInfo = *xx1
+				rst[i] = x
+			}
+		}
+		g.JSON(http.StatusOK, rst)
 	}
-	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
+	//db.GetRmtsvLists(g, mymod.ConnectInfo{}, []mymod.ConnectInfo{})
 }
 
 func ConnRmtSvs(g *gin.Context) *mymod.RemouteServerce {
@@ -257,6 +265,8 @@ func main() {
 			rscc.POST("", SaveRsCc)
 			rscc.GET("/:ip/:port", GetIPort)
 			v1.GET("/rmtsvlists", GetRmtsvLists)
+			// curl 'http://127.0.0.1:8081/api/v1/cclsts'
+			v1.GET("/cclsts", GetccLists)
 			v1.POST("/rmtsvImg", SaveRmtsvImg)
 		}
 
