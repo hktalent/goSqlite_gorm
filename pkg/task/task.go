@@ -17,7 +17,7 @@ func DoAllTask() {
 	c.AddFunc("30 * * * * *", func() {
 		go DoGetConnInfo()
 	})
-	c.AddFunc("0 2 * * * *", func() {
+	c.AddFunc("0 1 * * * *", func() {
 		go DoWifiListsInfo()
 	})
 	c.Start()
@@ -26,6 +26,7 @@ func DoAllTask() {
 func DoWifiListsInfo() {
 	var k *mymod.WifiInfoWifiListas = mycmd.GetAirPortBSSID()
 	dbCC.AutoMigrate(&mymod.WifiInfoWifiListas{})
+	dbCC.AutoMigrate(&mymod.WifiInfo{})
 	var x2 mymod.WifiInfoWifiListas
 	xx1 := dbCC.Model(&mymod.ConnectInfo{}).Where("latitude=? and longitude = ?", k.Latitude, k.Longitude)
 	rst := xx1.Find(&x2)

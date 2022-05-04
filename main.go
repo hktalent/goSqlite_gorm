@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	mycmd "goSqlite_gorm/pkg/common"
 	"goSqlite_gorm/pkg/db"
@@ -15,6 +16,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -95,16 +97,32 @@ func GetRmtsvLists(g *gin.Context) {
 
 // 当前连接信息
 func GetccLists(g *gin.Context) {
-	var rst []mymod.ConnectInfo = db.GetRmtsvLists4List(mymod.ConnectInfo{}, []mymod.ConnectInfo{})
+	m, _ := time.ParseDuration("-3h")
+	s0 := time.Now().Add(m)
+	currentPage, err := strconv.Atoi(g.Request.FormValue("currentPage"))
+	if nil != err {
+		currentPage = 1
+	}
+	pageSize, err := strconv.Atoi(g.Request.FormValue("pageSize"))
+	if nil != err {
+		pageSize = 100
+	}
+	var rst []mymod.ConnectInfo = db.GetRmtsvLists4List(mymod.ConnectInfo{}, "IpInfo",
+		[]mymod.ConnectInfo{}, pageSize, currentPage, "updated_at > ?", s0)
 	if nil != rst && 0 < len(rst) {
-		for i, x := range rst {
-			if "" == x.IpInfo.Ip {
-				xx1 := db.GetOne[mymod.IpInfo](&x.IpInfo, "ip=?", x.Ip)
-				x.IpInfo = *xx1
-				rst[i] = x
-			}
-		}
-		g.JSON(http.StatusOK, rst)
+		//	for i, x := range rst {
+		//		if "" == x.IpInfo.Ip {
+		//			xx1 := db.GetOne[mymod.IpInfo](&x.IpInfo, "ip=?", x.Ip)
+		//			if nil != xx1 {
+		//				x.IpInfo = *xx1
+		//			}
+		//			rst[i] = x
+		//		}
+		//	}
+		m1 := make(map[string]interface{})
+		m1["count"] = db.GetCount(mymod.ConnectInfo{}, "updated_at > ?", s0)
+		m1["list"] = rst
+		g.JSON(http.StatusOK, m1)
 	}
 	//db.GetRmtsvLists(g, mymod.ConnectInfo{}, []mymod.ConnectInfo{})
 }
@@ -251,6 +269,12 @@ func main() {
 	go task.DoAllTask()
 	if nil != dbCC {
 		router := gin.Default()
+		router.Use(static.Serve("/", static.LocalFile("dist", false)))
+		router.NoRoute(func(c *gin.Context) {
+			c.File("dist/index.html")
+		})
+		//router.Static("/", "./dist")
+		//router.StaticFile("/index.html", "./dist/index.html")
 		// 内部异常返回500
 		router.Use(gin.Recovery())
 
