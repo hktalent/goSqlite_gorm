@@ -90,6 +90,20 @@ func GetIPort(g *gin.Context) {
 	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
 }
 
+func GetId(g *gin.Context) {
+	var rsv mymod.RemouteServerce
+	n, e := strconv.Atoi(g.Param("id"))
+	if nil == e {
+		rst := dbCC.First(&rsv, "id = ?", n)
+		//log.Println("query end", rst.RowsAffected)
+		if 0 < rst.RowsAffected {
+			g.JSON(http.StatusOK, rsv)
+			return
+		}
+	}
+	g.JSON(http.StatusBadRequest, gin.H{"msg": "not found", "code": -1})
+}
+
 // 通过泛型调用
 func GetRmtsvLists(g *gin.Context) {
 	db.GetRmtsvLists(g, mymod.RemouteServerce{}, []mymod.RmtSvIpName{})
@@ -288,6 +302,8 @@ func main() {
 			rscc := v1.Group("/rsc")
 			rscc.POST("", SaveRsCc)
 			rscc.GET("/:ip/:port", GetIPort)
+			rscc.GET("/s/:id", GetId)
+
 			v1.GET("/rmtsvlists", GetRmtsvLists)
 			// curl 'http://127.0.0.1:8081/api/v1/cclsts'
 			v1.GET("/cclsts", GetccLists)
