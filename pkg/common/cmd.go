@@ -64,7 +64,11 @@ func GetCurConnInfo() []mymod.ConnectInfo {
 					if 0 < rst.RowsAffected && nil != xx0 {
 						k.IpInfo = *xx0
 					} else {
-						k.IpInfo = *GetIpInfo(k.Ip)
+						var xx6 *mymod.IpInfo
+						xx6 = GetIpInfo(k.Ip)
+						if nil != xx6 {
+							k.IpInfo = *xx6
+						}
 						//log.Println(k.IpInfo)
 					}
 				}
