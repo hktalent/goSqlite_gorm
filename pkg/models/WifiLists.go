@@ -20,10 +20,9 @@ type WifiInfo struct {
 
 type WifiLists struct {
 	gorm.Model
-	ID        int64      `json:"id" gorm:"primary_key"`
 	Latitude  string     `json:"latitude" gorm:"column:latitude;unique_index:lat_alo"`
 	Longitude string     `json:"longitude" gorm:"column:longitude;unique_index:lat_alo"`
 	Accuracy  string     `json:"accuracy"`
 	Date      time.Time  `json:"date"`
-	WifiLists []WifiInfo `json:"wifiLists" gorm:"many2many:WifiLists_WifiInfo;`
+	WifiInfos []WifiInfo `json:"wifiInfos" gorm:"many2many:WifiLists_WifiInfo;"`
 }

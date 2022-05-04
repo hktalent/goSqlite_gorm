@@ -106,6 +106,23 @@ func GetIpInfo(ip string) *mymod.IpInfo {
 	return nil
 }
 
+func DoWifiListsInfo() {
+	var k *mymod.WifiLists = GetAirPortBSSID()
+	dbCC.AutoMigrate(&mymod.WifiLists{})
+	dbCC.AutoMigrate(&mymod.WifiInfo{})
+	var x2 mymod.WifiLists
+	xx1 := dbCC.Model(&mymod.WifiLists{}).Where("latitude=? and longitude=?", k.Latitude, k.Longitude)
+	rst := xx1.Find(&x2)
+	if 0 < rst.RowsAffected {
+		rst = xx1.Updates(k)
+		if nil != rst.Error {
+			log.Println(rst.RowsAffected, rst.Error)
+		}
+	} else {
+		rst = dbCC.Create(k)
+	}
+}
+
 /*
 SSID BSSID             RSSI CHANNEL HT CC SECURITY (auth/unicast/group)
 */
@@ -157,7 +174,7 @@ func GetAirPortBSSID() *mymod.WifiLists {
 	if nil == err1 {
 		json.Unmarshal(s, &rstObj)
 	}
-	rstObj.WifiLists = wflst
+	rstObj.WifiInfos = wflst
 	return &rstObj
 }
 
@@ -200,6 +217,5 @@ func GetMacWhereAmI(wami *mymod.WhereAmI) {
 
 ////
 //func main() {
-//	GetAirPortBSSID()
-//	//	fmt.Printf("%v", x)
+//	DoWifiListsInfo()
 //}
