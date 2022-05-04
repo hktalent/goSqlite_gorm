@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
+	"gorm.io/gorm/logger"
 	"net/http"
 )
 
@@ -14,7 +14,7 @@ func GetDb(dbName string, dst ...interface{}) *gorm.DB {
 	if nil != dbCC {
 		return dbCC
 	}
-	db, err := gorm.Open(sqlite.Open("file:"+dbName+".db?cache=shared&mode=rwc&_journal_mode=WAL&Synchronous=Off&temp_store=memory&mmap_size=30000000000"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file:"+dbName+".db?cache=shared&mode=rwc&_journal_mode=WAL&Synchronous=Off&temp_store=memory&mmap_size=30000000000"), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		return nil
 	}
@@ -39,7 +39,7 @@ func GetCount[T any](mod T, args ...interface{}) int64 {
 func GetOne[T1 any](rst *T1, args ...interface{}) *T1 {
 	rst1 := dbCC.First(rst, args...)
 	if 0 == rst1.RowsAffected && nil != rst1.Error {
-		log.Println(rst1.Error)
+		//log.Println(rst1.Error)
 		return nil
 	}
 	return rst
