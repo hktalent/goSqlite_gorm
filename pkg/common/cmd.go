@@ -110,7 +110,7 @@ func GetIpInfo(ip string) *mymod.IpInfo {
 SSID BSSID             RSSI CHANNEL HT CC SECURITY (auth/unicast/group)
 */
 // /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -s
-func GetAirPortBSSID() *mymod.WifiInfoWifiListas {
+func GetAirPortBSSID() *mymod.WifiLists {
 	sCmd := "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
 	if _, err := os.Stat(sCmd); errors.Is(err, os.ErrNotExist) {
 		sCmd = "/usr/local/bin/airport"
@@ -122,7 +122,7 @@ func GetAirPortBSSID() *mymod.WifiInfoWifiListas {
 	}
 	x := strings.Split(a, "\n")
 
-	rstObj := mymod.WifiInfoWifiListas{}
+	rstObj := mymod.WifiLists{}
 	var wflst []mymod.WifiInfo = []mymod.WifiInfo{}
 	for _, j := range x {
 		r1, err := regexp.Compile(` ([0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}) `)

@@ -24,10 +24,10 @@ func DoAllTask() {
 }
 
 func DoWifiListsInfo() {
-	var k *mymod.WifiInfoWifiListas = mycmd.GetAirPortBSSID()
-	dbCC.AutoMigrate(&mymod.WifiInfoWifiListas{})
+	var k *mymod.WifiLists = mycmd.GetAirPortBSSID()
+	dbCC.AutoMigrate(&mymod.WifiLists{})
 	dbCC.AutoMigrate(&mymod.WifiInfo{})
-	var x2 mymod.WifiInfoWifiListas
+	var x2 mymod.WifiLists
 	xx1 := dbCC.Model(&mymod.ConnectInfo{}).Where("latitude=? and longitude = ?", k.Latitude, k.Longitude)
 	rst := xx1.Find(&x2)
 	if 0 < rst.RowsAffected {
