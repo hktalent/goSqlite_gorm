@@ -5,6 +5,7 @@ import (
 	mycmd "goSqlite_gorm/pkg/common"
 	"goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
+	sts "goSqlite_gorm/pkg/socketserver"
 	task "goSqlite_gorm/pkg/task"
 	"io"
 	"log"
@@ -281,7 +282,9 @@ func ReverseProxy(path, target string, router *gin.Engine) {
 // @host localhost:8080
 // @BasePath /api/v1
 func main() {
+	// 包含启动ssh server，方便通过web连接本地的shell
 	go task.DoAllTask()
+
 	if nil != dbCC {
 		router := gin.Default()
 		router.Use(static.Serve("/", static.LocalFile("dist", false)))
@@ -292,10 +295,12 @@ func main() {
 		//router.StaticFile("/index.html", "./dist/index.html")
 		// 内部异常返回500
 		router.Use(gin.Recovery())
-		// websocket
-		//http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		//	mycmd.ServeWs(hub, w, r)
-		//})
+
+		// websocket,web netcat设计，允许接收多个reverse shell的反弹连接，并呈现到web上
+		xx1 := sts.NewWebReverseShellServer()
+		http.HandleFunc("/ws4rvs", func(w http.ResponseWriter, r *http.Request) {
+			xx1.BindRequest(w, r)
+		})
 		// docs.SwaggerInfo.BasePath = "/api/v1"
 		// 同时运行多个gin服务并使用不同的swagger文档
 		// https://xiaoliu.org/posts/2021/1230-gin-multi-swag/
