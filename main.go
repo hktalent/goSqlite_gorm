@@ -5,7 +5,6 @@ import (
 	mycmd "goSqlite_gorm/pkg/common"
 	"goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
-	sts "goSqlite_gorm/pkg/socketserver"
 	task "goSqlite_gorm/pkg/task"
 	"io"
 	"log"
@@ -297,9 +296,9 @@ func main() {
 		router.Use(gin.Recovery())
 
 		// websocket,web netcat设计，允许接收多个reverse shell的反弹连接，并呈现到web上
-		xx1 := sts.NewWebReverseShellServer()
+		//xx1 := sts.NewWebReverseShellServer()
 		http.HandleFunc("/ws4rvs", func(w http.ResponseWriter, r *http.Request) {
-			xx1.BindRequest(w, r)
+			//xx1.BindRequest(w, r)
 		})
 		// docs.SwaggerInfo.BasePath = "/api/v1"
 		// 同时运行多个gin服务并使用不同的swagger文档
