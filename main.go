@@ -146,7 +146,7 @@ func GetccLists(g *gin.Context) {
 func ConnRmtSvs(g *gin.Context) *mymod.RemouteServerce {
 	var rsv mymod.RemouteServerce
 	//n, e := strconv.Atoi(strings.Split(g.Request.RequestURI, "/conn/")[1])
-	n, e := strconv.Atoi(g.Param("id"))
+	n, e := strconv.Atoi(strings.Split(g.Param("id"), "*")[0])
 	if nil == e {
 		rst := dbCC.First(&rsv, "id = ?", n)
 		if 0 < rst.RowsAffected {

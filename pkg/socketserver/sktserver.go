@@ -64,9 +64,11 @@ func (ss *SocketServer) WsMsg2ReverseShell() {
 		case <-ss.stop:
 			break
 		case msg := <-ss.s2wMsg:
-			ss.conn.WriteJSON(msg)
+			if nil != ss.conn {
+				ss.conn.WriteJSON(msg)
+			}
 		default:
-			{
+			if nil != ss.conn {
 				_, message, err := ss.conn.ReadMessage()
 				if err != nil {
 					log.Println("read:", err)
