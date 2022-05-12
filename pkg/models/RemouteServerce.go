@@ -20,6 +20,15 @@ type WhereAmI struct {
 	Date      time.Time `json:"date"`
 }
 
+// sudo arp-scan --localnet|grep '\d*\.\d*\.\d*\.\d*' | grep -v DUP
+type Localnet struct {
+	gorm.Model
+	WhereAmI
+	Ip   string `json:"ip"`
+	Mac  string `json:"mac"`
+	Name string `json:"name"`
+}
+
 // 图片更新
 type RmtSvImg struct {
 	ID      uint   `json:"id"`

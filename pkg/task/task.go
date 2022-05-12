@@ -5,6 +5,7 @@ import (
 	mycmd "goSqlite_gorm/pkg/common"
 	db "goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
+	"goSqlite_gorm/pkg/sshsv"
 	"gorm.io/gorm"
 	"log"
 )
@@ -12,6 +13,7 @@ import (
 var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.ConnectInfo{})
 
 func DoAllTask() {
+	sshsv.NewSshSv()
 	c := cron.New()
 	// 秒 分 时 日 月 年
 	c.AddFunc("30 * * * * *", func() {

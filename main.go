@@ -292,7 +292,10 @@ func main() {
 		//router.StaticFile("/index.html", "./dist/index.html")
 		// 内部异常返回500
 		router.Use(gin.Recovery())
-
+		// websocket
+		//http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		//	mycmd.ServeWs(hub, w, r)
+		//})
 		// docs.SwaggerInfo.BasePath = "/api/v1"
 		// 同时运行多个gin服务并使用不同的swagger文档
 		// https://xiaoliu.org/posts/2021/1230-gin-multi-swag/
