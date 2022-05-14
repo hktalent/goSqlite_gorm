@@ -287,6 +287,7 @@ func main() {
 	if nil != dbCC {
 		router := gin.Default()
 		router.Use(static.Serve("/", static.LocalFile("dist", false)))
+		router.Use(static.Serve("/HackTools/", static.LocalFile("hktdist", false)))
 		router.NoRoute(func(c *gin.Context) {
 			c.File("dist/index.html")
 		})

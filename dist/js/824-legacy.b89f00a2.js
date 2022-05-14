@@ -1,2 +1,0 @@
-"use strict";(self["webpackChunkapp"]=self["webpackChunkapp"]||[]).push([[824],{9824:function(t,n,e){e.r(n),e.d(n,{default:function(){return f}});var a=function(){var t=this,n=t.$createElement,e=t._self._c||n;return e("el-card",{staticClass:"box-card",attrs:{shadow:"hover"}},[e("div",[t._v(" 51Pwn")])])},r=[],u={data:function(){return{}}},l=u,s=e(1001),c=(0,s.Z)(l,a,r,!1,null,null,null),f=c.exports}}]);
-//# sourceMappingURL=824-legacy.b89f00a2.js.map
