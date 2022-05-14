@@ -6,5 +6,8 @@ mv dist $XX1/
 cd $XX1
 go get -u
 go mod tidy
-go build
+go build main.go
+git commit -m "up" .
+git push
+
 

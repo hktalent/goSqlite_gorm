@@ -3,6 +3,8 @@
 *.exe~
 *.dll
 *.so
+dist
+hktdist
 *.dylib
 mydbfile.db*
 .DS_Store
