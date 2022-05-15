@@ -2,7 +2,6 @@ package models
 
 import (
 	"gorm.io/gorm"
-	"time"
 )
 
 /*
@@ -12,8 +11,37 @@ import (
 */
 type SubDomain struct {
 	gorm.Model
-	Domain    string    `json:"domain"`
-	SubDomain string    `json:"subDomain"`
-	ToolName  string    `json:"toolName,omitempty"`
-	Create    time.Time `json:"create"`
+	Domain    string `json:"domain"`
+	SubDomain string `json:"subDomain"`
+	ToolName  string `json:"toolName,omitempty"`
+}
+
+// domain to ips
+// ip to Domain
+type Domain2Ips struct {
+	gorm.Model
+	Domain   string `json:"domain"`
+	Ip       string `json:"ip"`
+	ToolName string `json:"toolName,omitempty"`
+}
+
+// 端口扫描，及端口漏洞扫描
+type Ip2Ports struct {
+	gorm.Model
+	MyId          string `json:"myId"`
+	Ip            string `json:"ip"`
+	Port          int    `json:"port"`
+	Des           string `json:"des,omitempty"`
+	ToolName      string `json:"toolName,omitempty"`
+	VulsCheckFlag uint64 `json:"vulsCheckFlag,omitempty"` // 每一位表示一个工具，所以，可以支持64种工具、插件对该port进行扫描
+	VulsCheckRst  string `json:"vulsCheckRst,omitempty"`
+}
+
+// 执行任务
+type Task struct {
+	gorm.Model
+	Target   string `json:"target"`
+	TaskType string `json:"taskType"`
+	PluginId string `json:"pluginId"`
+	Status   int    `json:"status"` // 状态:待执行，执行中，已完成
 }
