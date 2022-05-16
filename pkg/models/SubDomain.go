@@ -31,6 +31,7 @@ type Ip2Ports struct {
 	MyId          string `json:"myId"`
 	Ip            string `json:"ip"`
 	Port          int    `json:"port"`
+	Country       string `json:"country"`
 	Des           string `json:"des,omitempty"`
 	ToolName      string `json:"toolName,omitempty"`
 	VulsCheckFlag uint64 `json:"vulsCheckFlag,omitempty"` // 每一位表示一个工具，所以，可以支持64种工具、插件对该port进行扫描
