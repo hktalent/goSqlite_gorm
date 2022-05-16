@@ -31,11 +31,38 @@ type Ip2Ports struct {
 	MyId          string `json:"myId"`
 	Ip            string `json:"ip"`
 	Port          int    `json:"port"`
-	Country       string `json:"country"`
 	Des           string `json:"des,omitempty"`
 	ToolName      string `json:"toolName,omitempty"`
 	VulsCheckFlag uint64 `json:"vulsCheckFlag,omitempty"` // 每一位表示一个工具，所以，可以支持64种工具、插件对该port进行扫描
 	VulsCheckRst  string `json:"vulsCheckRst,omitempty"`
+}
+
+// ip 经纬度 info
+// curl -H 'User-Agent:curl/1.0' http://ip-api.com/json/107.182.191.202|jq
+type IpInfo struct {
+	gorm.Model
+	Continent     string  `json:"continent"`
+	ContinentCode string  `json:"continentCode"`
+	Country       string  `json:"country"`
+	CountryCode   string  `json:"countryCode"`
+	Region        string  `json:"region"`
+	RegionName    string  `json:"regionName"`
+	City          string  `json:"city"`
+	District      string  `json:"district"`
+	Zip           string  `json:"zip"`
+	Lat           float64 `json:"lat"`
+	Lon           float64 `json:"lon"`
+	Timezone      string  `json:"timezone"`
+	Offset        string  `json:"offset"`
+	Currency      string  `json:"currency"`
+	Isp           string  `json:"isp"`
+	Org           string  `json:"org"`
+	As            string  `json:"as"`
+	Asname        string  `json:"asname"`
+	Mobile        string  `json:"mobile"`
+	Proxy         string  `json:"proxy"`
+	Hosting       string  `json:"hosting"`
+	Ip            string  `json:"query" gorm:"primaryKey,unique_index"` // IP
 }
 
 // 执行任务
