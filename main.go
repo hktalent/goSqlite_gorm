@@ -122,7 +122,7 @@ func GetccLists(g *gin.Context) {
 	if nil != err {
 		pageSize = 100
 	}
-	var rst []mymod.ConnectInfo = db.GetRmtsvLists4List(mymod.ConnectInfo{}, "IpInfo",
+	var rst []mymod.ConnectInfo = db.GetSubQueryLists(mymod.ConnectInfo{}, "IpInfo",
 		[]mymod.ConnectInfo{}, pageSize, currentPage, "updated_at > ?", s0)
 	if nil != rst && 0 < len(rst) {
 		//	for i, x := range rst {

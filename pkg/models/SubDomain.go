@@ -45,3 +45,14 @@ type Task struct {
 	PluginId string `json:"pluginId"`
 	Status   int    `json:"status"` // 状态:待执行，执行中，已完成
 }
+
+const (
+	Task_Status_Pending     = 1 << iota // 待执行
+	Task_Status_InExecution = 1 << iota // 执行中
+	Task_Status_Completed   = 1 << iota // 已完成
+)
+const (
+	Ip2Ports_VulsCheckFlag_Nmap     = 1 << iota // 端口扫描工具：Nmap
+	Ip2Ports_VulsCheckFlag_Masscan  = 1 << iota // 端口扫描工具：masscan
+	Ip2Ports_VulsCheckFlag_RustScan = 1 << iota // 端口扫描工具：RustScan
+)

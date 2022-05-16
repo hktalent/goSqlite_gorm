@@ -5,14 +5,6 @@ import (
 	"time"
 )
 
-// 返回界面列表
-type RmtSvIpName struct {
-	ID      uint   `json:"id"`
-	Title   string `json:"title"`
-	ImgData string `json:"imgData"`
-	Tags    string `gorm:"index" yaml:"tags,omitempty" json:"tags,omitempty" jsonschema:"title=tags hackerone butian,description=tags hackerone butian"` // 比较时hackerone，还是其他
-}
-
 // 位置坐标
 type WhereAmI struct {
 	Latitude  string    `json:"latitude"`
@@ -35,6 +27,14 @@ type RmtSvImg struct {
 	ID      uint   `json:"id"`
 	ImgData string `json:"imgData"`
 	WhereAmI
+}
+
+// 返回界面列表
+type RmtSvIpName struct {
+	ID      uint   `json:"id"`
+	Title   string `json:"title"`
+	ImgData string `json:"imgData"`
+	Tags    string `gorm:"index" yaml:"tags,omitempty" json:"tags,omitempty" jsonschema:"title=tags hackerone butian,description=tags hackerone butian"` // 比较时hackerone，还是其他
 }
 
 // 远程链接信息
