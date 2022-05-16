@@ -16,6 +16,7 @@ git commit -m "up" .
 git push
 
 cd $XX1
+source ~/.zshrc
 go get -u
 go mod tidy
 go build main.go
