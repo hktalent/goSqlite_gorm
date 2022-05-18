@@ -39,7 +39,7 @@ func GetTableName[T any](mod T) string {
 // 通用
 // 指定id更新T类型mod数据
 func Update[T any](mod T, id interface{}) int64 {
-	var t1 *T = &T{}
+	var t1 *T = &mod
 	xxxD := dbCC.Table(GetTableName(mod)).Model(&t1)
 	xxxD.AutoMigrate(t1)
 	rst := xxxD.Where("id = ?", id).Updates(mod)

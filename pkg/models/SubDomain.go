@@ -75,9 +75,9 @@ type Task struct {
 }
 
 const (
-	Task_Status_Pending     = 1 << iota // 待执行
-	Task_Status_InExecution = 1 << iota // 执行中
-	Task_Status_Completed   = 1 << iota // 已完成
+	Task_Status_Pending     = 1 << iota // 任务状态：待执行
+	Task_Status_InExecution = 1 << iota // 任务状态：执行中
+	Task_Status_Completed   = 1 << iota // 任务状态：已完成
 )
 const (
 	Ip2Ports_VulsCheckFlag_Nmap     = 1 << iota // 端口扫描工具：Nmap

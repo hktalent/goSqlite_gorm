@@ -33,6 +33,17 @@ func DoCmd(args ...string) (string, error) {
 
 var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.ConnectInfo{})
 
+// 自身安全保障
+// 1、锁定网关mac地址，避免中间人攻击
+func Locked4MeSafe() {
+	p, err := os.Getwd()
+	if nil != err {
+		log.Println(err)
+	}
+	DoCmd("/bin/bash", p+"/tools/locked4ME.sh")
+}
+
+// 当前互联网连接
 func GetCurConnInfo() []mymod.ConnectInfo {
 	p, err := os.Getwd()
 	if nil != err {

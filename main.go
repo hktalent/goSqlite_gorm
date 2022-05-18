@@ -272,6 +272,7 @@ func ReverseProxy(path, target string, router *gin.Engine) {
 }
 
 // http://localhost:8080/swagger/index.html
+// c.Header("Content-Type", "application/json")
 // @title 51pwn app API
 // @version 1.0
 // @description This is 51pwn app api docs.
@@ -289,6 +290,9 @@ func main() {
 		router.Use(static.Serve("/", static.LocalFile("dist", false)))
 		router.Use(static.Serve("/HackTools/", static.LocalFile("hktdist", false)))
 		router.NoRoute(func(c *gin.Context) {
+			if -1 < strings.Index(c.Request.Header.Get("Content-Type"), "application/json") {
+
+			}
 			c.File("dist/index.html")
 		})
 		//router.Static("/", "./dist")

@@ -16,9 +16,12 @@ func DoAllTask() {
 	sshsv.NewSshSv()
 	c := cron.New()
 	// 秒 分 时 日 月 年
+	// 每30秒获取一次本机的互联网连接
 	c.AddFunc("30 * * * * *", func() {
 		go DoGetConnInfo()
+		go mycmd.Locked4MeSafe()
 	})
+	// 每分钟获取一次wifi 列表
 	c.AddFunc("0 1 * * * *", func() {
 		go mycmd.DoWifiListsInfo()
 	})
