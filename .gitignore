@@ -5,6 +5,9 @@
 *.so
 dist
 hktdist
+/tools/pages/data
+node_modules
+yarn.lock
 *.dylib
 mydbfile.db*
 .DS_Store

@@ -13,6 +13,8 @@ echo $PPSSWWDD | sudo -S ./tools/whereami
 
 # How
 ```bash
+go install -v github.com/OWASP/Amass/v3/...@master
+
 mkdir ~/MyWork/
 git clone https://github.com/hktalent/goSqlite_gorm.git ~/MyWork/
 cd ~/MyWork/goSqlite_gorm

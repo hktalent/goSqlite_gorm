@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-contrib/gzip"
 	mycmd "goSqlite_gorm/pkg/common"
 	"goSqlite_gorm/pkg/db"
 	mymod "goSqlite_gorm/pkg/models"
@@ -271,6 +272,11 @@ func ReverseProxy(path, target string, router *gin.Engine) {
 	router.POST(path, xxx)
 }
 
+var (
+	SSLCRT string = "/Users/51pwn/MyWork/mywebapp/ca/fullchain.pem"
+	SSLKEY string = "/Users/51pwn/MyWork/mywebapp/ca/privkey.pem"
+)
+
 // http://localhost:8080/swagger/index.html
 // c.Header("Content-Type", "application/json")
 // @title 51pwn app API
@@ -287,7 +293,9 @@ func main() {
 
 	if nil != dbCC {
 		router := gin.Default()
+		router.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedExtensions([]string{".pdf", ".mp4"})))
 		router.Use(static.Serve("/", static.LocalFile("dist", false)))
+		router.Use(static.Serve("/md", static.LocalFile("md", false)))
 		router.Use(static.Serve("/HackTools/", static.LocalFile("hktdist", false)))
 		router.NoRoute(func(c *gin.Context) {
 			if -1 < strings.Index(c.Request.Header.Get("Content-Type"), "application/json") {
@@ -330,6 +338,21 @@ func main() {
 
 		// swagger 似乎成了所有例子的路径
 		//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 		router.Run(":8081")
+		//var x509 tls.Certificate
+		//x509, err := tls.LoadX509KeyPair(SSLCRT, SSLKEY)
+		//if err != nil {
+		//	return
+		//}
+		//var server *http.Server
+		//server = &http.Server{
+		//	Addr:    ":8081",
+		//	Handler: router,
+		//	TLSConfig: &tls.Config{
+		//		Certificates: []tls.Certificate{x509},
+		//	},
+		//}
+		//server.ListenAndServe()
 	}
 }
