@@ -56,7 +56,7 @@ type SiteInfo struct {
 	Tags               string         `yaml:"tags,omitempty" json:"tags,omitempty" jsonschema:"title=tags hackerone butian,description=tags hackerone butian"` // 比较时hackerone，还是其他
 }
 
-var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.RemouteServerce{})
+var dbCC *gorm.DB = db.GetDb(&mymod.RemouteServerce{})
 
 // @Summary      通过ip、port返回连接信息
 // @Description  通过ip、port返回连接信息, curl 'http://127.0.0.1:8081/api/v1/rsc/192.168.0.111/222'

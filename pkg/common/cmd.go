@@ -31,7 +31,7 @@ func DoCmd(args ...string) (string, error) {
 	return string(outStr + "\n" + errStr), err
 }
 
-var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.ConnectInfo{})
+var dbCC *gorm.DB = db.GetDb(&mymod.ConnectInfo{})
 
 // 自身安全保障
 // 1、锁定网关mac地址，避免中间人攻击

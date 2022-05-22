@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.ConnectInfo{})
+var dbCC *gorm.DB = db.GetDb(&mymod.ConnectInfo{})
 
 func DoAllTask() {
 	sshsv.NewSshSv()

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var dbCC *gorm.DB = db.GetDb("mydbfile", &mymod.RemouteServerce{})
+var dbCC *gorm.DB = db.GetDb(&mymod.RemouteServerce{})
 
 // http://localhost:8080/swagger/index.html
 // c.Header("Content-Type", "application/json")

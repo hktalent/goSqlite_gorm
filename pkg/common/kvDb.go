@@ -18,7 +18,7 @@ func NewKvDbOp() *KvDbOp {
 		return cache
 	}
 	r := KvDbOp{}
-	r.Init("DbCache")
+	r.Init("db/DbCache")
 	cache = &r
 	return cache
 }

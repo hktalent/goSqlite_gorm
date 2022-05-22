@@ -14,7 +14,8 @@ var dbCC *gorm.DB
 var DoOnce sync.Once
 
 // 获取Gorm db连接、操作对象
-func GetDb(dbName string, dst ...interface{}) *gorm.DB {
+func GetDb(dst ...interface{}) *gorm.DB {
+	dbName := "db/mydbfile"
 	DoOnce.Do(func() {
 		db, err := gorm.Open(sqlite.Open("file:"+dbName+".db?cache=shared&mode=rwc&_journal_mode=WAL&Synchronous=Off&temp_store=memory&mmap_size=30000000000"), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 		if err == nil {
