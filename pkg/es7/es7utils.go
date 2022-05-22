@@ -72,7 +72,7 @@ func (es7 *Es7Utils) Create(t1 any, id string) string {
 	indexName := strings.ToLower(es7.GetIndexName(t1))
 	// 覆盖性更新文档，如果给定的文档ID不存在，将创建文档: bytes.NewReader(data),
 	response, err := es7.Client.Index(indexName, body, es7.Client.Index.WithDocumentID(id), es7.Client.Index.WithRefresh("true"))
-	if nil == err {
+	if nil != response {
 		defer response.Body.Close()
 		return response.String()
 	}

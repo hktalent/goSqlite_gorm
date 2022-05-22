@@ -51,14 +51,18 @@ func SaveSubDomain(g *gin.Context) {
 		m.Domain = strings.Split(m.Domain, "//")[1]
 	}
 	a := GetIps(m.Domain)
-	go SaveDomain(m.Domain, a)
+	if 0 < len(a) {
+		go SaveDomain(m.Domain, a)
+	}
 	if nil != m.Subdomains {
 		for _, x := range m.Subdomains {
 			if -1 < strings.Index(x, ":") {
 				x = strings.Split(x, ":")[0]
 			}
 			a = hacker.GetDomian2IpsAll(x)
-			go SaveDomain(x, a)
+			if 0 < len(a) {
+				go SaveDomain(x, a)
+			}
 		}
 	}
 	g.JSON(http.StatusOK, gin.H{"msg": "ok", "code": 200})
