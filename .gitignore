@@ -8,6 +8,7 @@ hktdist
 /tools/pages/data
 node_modules
 yarn.lock
+DbCache
 *.dylib
 mydbfile.db*
 .DS_Store
