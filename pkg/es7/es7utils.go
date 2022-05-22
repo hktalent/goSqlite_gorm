@@ -8,15 +8,20 @@ import (
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"log"
 	"reflect"
-	"time"
+	"strings"
 )
 
 type Es7Utils struct {
 	Client *elasticsearch7.Client
 }
 
+var es7 *Es7Utils
+
 func NewEs7() *Es7Utils {
-	time.Now()
+	if nil != es7 {
+		return es7
+	}
+	//time.Now()
 	client, err := elasticsearch7.NewClient(elasticsearch7.Config{
 		Addresses: []string{"http://localhost:9200"},
 		//Username:  "username",
@@ -26,7 +31,8 @@ func NewEs7() *Es7Utils {
 		log.Println(err)
 		return nil
 	}
-	return &Es7Utils{Client: client}
+	es7 = &Es7Utils{Client: client}
+	return es7
 }
 
 // get strutct name to index name
@@ -63,7 +69,7 @@ func (es7 *Es7Utils) Create(t1 any, id string) string {
 	if nil != err {
 		return ""
 	}
-	indexName := es7.GetIndexName(t1)
+	indexName := strings.ToLower(es7.GetIndexName(t1))
 	// 覆盖性更新文档，如果给定的文档ID不存在，将创建文档: bytes.NewReader(data),
 	response, err := es7.Client.Index(indexName, body, es7.Client.Index.WithDocumentID(id), es7.Client.Index.WithRefresh("true"))
 	if nil == err {
