@@ -24,7 +24,14 @@ type Domain struct {
 
 func SaveDomain(domain string, ips []string) {
 	var d = Domain{Domain: domain, Ips: ips}
-	s := es7.NewEs7().Create(d, domain)
+	x1 := es7.NewEs7()
+	x2 := x1.GetDoc(d, domain)
+	if nil != x2 {
+		if -1 < strings.Index(x2.String(), domain) {
+			return
+		}
+	}
+	s := x1.Create(d, domain)
 	log.Println(s)
 }
 
@@ -48,6 +55,7 @@ func DoDomainLists(a []string) {
 			if -1 < strings.Index(x, ":") {
 				x = strings.Split(x, ":")[0]
 			}
+			log.Println("start ", x)
 			a = hacker.GetDomian2IpsAll(x)
 			if 0 < len(a) {
 				go SaveDomain(x, a)
@@ -68,6 +76,7 @@ func DoListDomains(s string) {
 				if -1 < strings.Index(a[i], ":") {
 					a[i] = strings.Split(a[i], "//")[0]
 				}
+				a[i] = strings.Replace(a[i], "*", "", -1)
 			}
 			go DoDomainLists(a)
 		}
