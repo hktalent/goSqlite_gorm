@@ -37,7 +37,7 @@ func NewEs7() *Es7Utils {
 
 // get strutct name to index name
 func (es7 *Es7Utils) GetIndexName(t1 any) string {
-	return reflect.TypeOf(t1).Name()
+	return strings.ToLower(reflect.TypeOf(t1).Name() + "_index")
 }
 
 // get Doc
@@ -69,7 +69,7 @@ func (es7 *Es7Utils) Create(t1 any, id string) string {
 	if nil != err {
 		return ""
 	}
-	indexName := strings.ToLower(es7.GetIndexName(t1))
+	indexName := es7.GetIndexName(t1)
 	// 覆盖性更新文档，如果给定的文档ID不存在，将创建文档: bytes.NewReader(data),
 	response, err := es7.Client.Index(indexName, body, es7.Client.Index.WithDocumentID(id), es7.Client.Index.WithRefresh("true"))
 	if nil != response {

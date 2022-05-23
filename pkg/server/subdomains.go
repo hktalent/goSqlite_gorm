@@ -7,6 +7,7 @@ import (
 	"goSqlite_gorm/pkg/es7"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -15,6 +16,7 @@ type SubDomain struct {
 	Subdomains []string `json:"subdomains"`
 }
 
+//http://127.0.0.1:9200/domain_index/_search?q=domain:%20in%20*qianxin*
 type Domain struct {
 	Domain string   `json:"domain"`
 	Ips    []string `json:"ips"`
@@ -40,6 +42,52 @@ func GetIps(domain string) []string {
 	return a1
 }
 
+func DoDomainLists(a []string) {
+	if nil != a {
+		for _, x := range a {
+			if -1 < strings.Index(x, ":") {
+				x = strings.Split(x, ":")[0]
+			}
+			a = hacker.GetDomian2IpsAll(x)
+			if 0 < len(a) {
+				go SaveDomain(x, a)
+			}
+		}
+	}
+}
+
+func DoListDomains(s string) {
+	if "" != s {
+		xreg, err := regexp.Compile(`[\n;]`)
+		if nil == err {
+			a := xreg.Split(s, -1)
+			for i, x := range a {
+				if -1 < strings.Index(x, "//") {
+					a[i] = strings.Split(x, "//")[1]
+				}
+				if -1 < strings.Index(a[i], ":") {
+					a[i] = strings.Split(a[i], "//")[0]
+				}
+			}
+			go DoDomainLists(a)
+		}
+	}
+}
+
+// dlst=
+func SaveDomainLst(g *gin.Context) {
+	s := g.Request.FormValue("dlst")
+	DoListDomains(s)
+	g.JSON(http.StatusOK, gin.H{"msg": "ok", "code": 200})
+}
+
+/*
+{
+"domain": "xx.com",
+"subdomains": []
+}
+
+*/
 func SaveSubDomain(g *gin.Context) {
 	var m SubDomain
 	if err := g.BindJSON(&m); err != nil {
@@ -54,19 +102,10 @@ func SaveSubDomain(g *gin.Context) {
 	if 0 < len(a) {
 		go SaveDomain(m.Domain, a)
 	}
-	if nil != m.Subdomains {
-		for _, x := range m.Subdomains {
-			if -1 < strings.Index(x, ":") {
-				x = strings.Split(x, ":")[0]
-			}
-			a = hacker.GetDomian2IpsAll(x)
-			if 0 < len(a) {
-				go SaveDomain(x, a)
-			}
-		}
-	}
+	go DoDomainLists(m.Subdomains)
 	g.JSON(http.StatusOK, gin.H{"msg": "ok", "code": 200})
 }
 func InitSubDomainRoute(router *gin.RouterGroup) {
 	router.POST("/subdomian", SaveSubDomain)
+	router.POST("/dlists", SaveDomainLst)
 }
