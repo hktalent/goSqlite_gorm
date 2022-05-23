@@ -3,7 +3,10 @@ package common
 import (
 	"encoding/json"
 	"github.com/dgraph-io/badger"
+	"log"
 )
+
+var cache1 = NewKvDbOp()
 
 // https://colobu.com/2017/10/11/badger-a-performant-k-v-store/
 // https://juejin.cn/post/6844903814571491335
@@ -11,22 +14,17 @@ type KvDbOp struct {
 	DbConn *badger.DB
 }
 
-var cache *KvDbOp
-
 func NewKvDbOp() *KvDbOp {
-	if nil != cache {
-		return cache
-	}
 	r := KvDbOp{}
 	r.Init("db/DbCache")
-	cache = &r
-	return cache
+	return &r
 }
 
 func (r *KvDbOp) Init(szDb string) error {
 	opts := badger.DefaultOptions(szDb)
 	db, err := badger.Open(opts)
 	if nil != err {
+		log.Println("Init k-v db 不能多个进程同时开启", err)
 		return err
 	}
 	r.DbConn = db
@@ -59,21 +57,21 @@ func (r *KvDbOp) Get(key string) (szRst []byte, err error) {
 	})
 	return szRst, err
 }
-func PutAny[T any](r *KvDbOp, key string, data T) {
+func PutAny[T any](key string, data T) {
 	d, err := json.Marshal(data)
 	if nil == err {
-		r.Put(key, d)
+		cache1.Put(key, d)
 	}
 }
 
-func GetAny[T any](r *KvDbOp, key string) T {
+func GetAny[T any](key string) (T, error) {
 	var t1 T
-	data, err := r.Get(key)
+	data, err := cache1.Get(key)
 	if nil == err {
 		json.Unmarshal(data, &t1)
-		return t1
+		return t1, nil
 	}
-	return t1
+	return t1, err
 }
 
 func (r *KvDbOp) Put(key string, data []byte) {
