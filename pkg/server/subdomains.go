@@ -59,6 +59,17 @@ func GetIps(domain string) []string {
 func DoDomainLists(a []string) {
 	if nil != a {
 		for _, x := range a {
+			// 跳过ip
+			xreg, err := regexp.Compile(`(\d{1,3}\.){3}\d{1,3}`)
+			if nil == err {
+				x11 := xreg.FindAllString(x, -1)
+				if nil != x11 && 0 < len(x11) {
+					continue
+				}
+			}
+			if -1 < strings.Index(x, "://") {
+				x = strings.Split(x, "://")[1]
+			}
 			if -1 < strings.Index(x, ":") {
 				x = strings.Split(x, ":")[0]
 			}
