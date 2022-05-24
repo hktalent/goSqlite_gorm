@@ -105,7 +105,7 @@ func DoListDomains(s string) {
 						continue
 					}
 				}
-				
+
 				if -1 < strings.Index(x, "//") {
 					a[i] = strings.Split(x, "//")[1]
 				}
