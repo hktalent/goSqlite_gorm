@@ -176,7 +176,13 @@ func SaveRsCc(g *gin.Context) {
 	}
 	msg := OkMsg
 	mycmd.GetMacWhereAmI(&rsv.WhereAmI)
-	rst := dbCC.First(&rsvOld, "ip = ? and port = ?", rsv.Ip, rsv.Port)
+	var rst *gorm.DB
+	if 0 < rsv.ID {
+		rst = dbCC.First(&rsvOld, "id = ?", rsv.ID)
+	}
+	if nil == rst || 0 == rst.RowsAffected {
+		rst = dbCC.First(&rsvOld, "ip = ? and port = ?", rsv.Ip, rsv.Port)
+	}
 	if 1 == rst.RowsAffected {
 		rst = dbCC.Model(&rsv).Where("id = ?", rsvOld.ID).Updates(rsv)
 	} else {
