@@ -17,9 +17,16 @@ require (
 require (
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/PuerkitoBio/gocrawl v1.1.0 // indirect
+	github.com/PuerkitoBio/goquery v1.8.0 // indirect
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
+	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+	github.com/caffix/amass v2.3.0+incompatible // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08 // indirect
 	github.com/dgraph-io/badger v1.6.2 // indirect
@@ -41,6 +48,7 @@ require (
 	github.com/hktalent/go4Hacker v0.0.0-20220519134559-c908caccec1d // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/johnnadratowski/golang-neo4j-bolt-driver v0.0.0-20200323142034-807201386efa // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect
@@ -74,6 +82,7 @@ require (
 	github.com/projectdiscovery/uncover v0.0.5 // indirect
 	github.com/remeh/sizedwaitgroup v1.0.0 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
+	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/unrolled/secure v1.10.0 // indirect
 	github.com/yl2chen/cidranger v1.0.2 // indirect

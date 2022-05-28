@@ -37,13 +37,25 @@ func GetTableName[T any](mod T) string {
 	return stmt.Schema.Table
 }
 
-// 通用
+// 通用,update
 // 指定id更新T类型mod数据
 func Update[T any](mod T, id interface{}) int64 {
 	var t1 *T = &mod
 	xxxD := dbCC.Table(GetTableName(mod)).Model(&t1)
 	xxxD.AutoMigrate(t1)
 	rst := xxxD.Where("id = ?", id).Updates(mod)
+	if 0 >= rst.RowsAffected {
+		log.Println(rst.Error)
+	}
+	return rst.RowsAffected
+}
+
+// 通用,insert
+func Create[T any](mod T) int64 {
+	var t1 *T = &mod
+	xxxD := dbCC.Table(GetTableName(mod)).Model(&t1)
+	xxxD.AutoMigrate(t1)
+	rst := xxxD.Create(mod)
 	if 0 >= rst.RowsAffected {
 		log.Println(rst.Error)
 	}
